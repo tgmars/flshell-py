@@ -1,20 +1,32 @@
 import npyscreen
 import dbhandler
+import curses.ascii
 
 #Default form delivered on startup.
 class DefaultForm(npyscreen.Form):
+  
+    def h_enter_dir(self):
+        a=open("myOutFile.txt", "w")
+        a.write("h_enter_dir")
+        a.close()
+
     def create(self): 
         db = dbhandler.TSKDatabase()
         treeData = npyscreen.TreeData()
+
         for count, filesystem in enumerate(db.select_filesystems_from_tsk_fs_info()):
             """
             Let's make a horrible assumption in the interest of usability. 
             Limits correct displays to Windows boxes that follow sequential
-            drive naming, C:\, D:\ , etc
+            drive naming, C:\, D:\ , etc. Convert the first drive to C:\
             """
             treeData.new_child(content="{}:\\".format(chr(count+67)))
+        
+        handlers = {curses.ascii.NL : self.h_enter_dir,
+                    curses.ascii.TAB : self.h_enter_dir}
 
         treeView = self.add(npyscreen.MLTree, name="Filesystem", values=treeData)
+        treeView.add_handlers(self.handlers)
 
     # Required for closing cleanly on OK press.
     def afterEditing(self):
@@ -32,3 +44,7 @@ class Flshell(npyscreen.NPSAppManaged):
 
 if __name__ == '__main__':
     application = Flshell().run()
+
+class CustomHandlers():
+    def h_enter_dir(self):
+        print("h_enter_dir")

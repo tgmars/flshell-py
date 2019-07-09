@@ -1,7 +1,7 @@
 import sqlite3
 
 class TSKDatabase(object):
-    def __init__(self, filename=""):
+    def __init__(self, filename="/home/tom/Desktop/recruitment.db"):
         self.dbfilename = filename
         self.conn = sqlite3.connect(self.dbfilename)
         self.conn.row_factory = sqlite3.Row
