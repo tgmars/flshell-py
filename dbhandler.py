@@ -62,7 +62,7 @@ class TSKDatabase(object):
         :param par_obj_id: Entry in tsk_objects
         :return: Results of SQLite query as a list of rows.
         """
-        query = "SELECT img_offset, fs_type FROM tsk_fs_info"
+        query = "SELECT obj_id, img_offset, fs_type FROM tsk_fs_info"
 
         cur = self.conn.cursor()
         cur.execute(query)
