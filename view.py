@@ -28,10 +28,13 @@ class MyTreeView(npyscreen.MLTree):
                     try:
                         #Something here is throwing an exception
                         item_type = {3:"d",5:"r"}
-                        child.new_child("{}\t{}-{}-{}:\t{}\t{}".format(item_type.get(file_entry[11]),
-                            file_entry[6],file_entry[3],file_entry[4],file_entry[5],file_entry[0]))
-                        child.expanded = False
-                        child.selectable=False
+                        if file_entry[5]=="." or file_entry[5]=="..":
+                            pass
+                        else:
+                            child.new_child("{}\t{}-{}-{}:\t{}\t{}".format(item_type.get(file_entry[11]),
+                                file_entry[6],file_entry[3],file_entry[4],file_entry[5],file_entry[0]))
+                            child.expanded = False
+                            child.selectable=False
                     except:
                         pass
 
@@ -81,12 +84,17 @@ class DefaultForm(npyscreen.Form):
 
                 #dir_type(3=dir,5=file, xx?), entry_number, filename, db_object_id
                 item_type = {3:"d",5:"r"}
-            
-                self.treeData._children[partition_index].new_child("{}\t{}-{}-{}:\t{}\t{}".format(item_type.get(file_entry[11]),
-                    file_entry[6],file_entry[3],file_entry[4],file_entry[5],file_entry[0]))
-                for grandchildren in self.treeData._children[partition_index]._children:
-                    grandchildren.expanded=False
-                    grandchildren.selectable=False
+                if file_entry[5]=="." or file_entry[5]=="..":
+                    pass
+                else:
+                    #If the format of the children being added is changed, h_expand_tree needs to be updated with how the 
+                    #obj_id entry is parsed out. Should use the ntfs entries instead of the primary database key, but it's
+                    #a stopgap to get some code working.
+                    self.treeData._children[partition_index].new_child("{}\t{}-{}-{}:\t{}\t{}".format(item_type.get(file_entry[11]),
+                        file_entry[6],file_entry[3],file_entry[4],file_entry[5],file_entry[0]))
+                    for grandchildren in self.treeData._children[partition_index]._children:
+                        grandchildren.expanded=False
+                        grandchildren.selectable=False
 
         self.db.close()
         treeView = self.add(MyTreeView, name="Filesystem", values=self.treeData)
