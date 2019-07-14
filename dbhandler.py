@@ -31,10 +31,10 @@ class TSKDatabase(object):
         """
         query = """SELECT * FROM tsk_files 
                     JOIN tsk_objects ON tsk_files.obj_id = tsk_objects.obj_id 
-                    WHERE tsk_objects.par_obj_id = ?;"""
+                    WHERE tsk_objects.par_obj_id = ? AND tsk_files.type != ?;"""
 
         cur = self.conn.cursor()
-        cur.execute(query, par_obj_id)
+        cur.execute(query, (par_obj_id,"7"))
         return cur.fetchall()
 
     def select_files_from_filesystem_id_tsk_files(self, filesystem_obj_id):
@@ -51,7 +51,25 @@ class TSKDatabase(object):
                     WHERE tsk_fs_info.obj_id = ?;"""
 
         cur = self.conn.cursor()
-        cur.execute(query, filesystem_obj_id)
+        cur.execute(query, (filesystem_obj_id,))
+        return cur.fetchall()
+
+    def select_root_files_from_filesystem_id_tsk_files(self, filesystem_obj_id):
+        """
+        Query entries from tsk_files that are
+        direct descendants of the given parent
+        object id.
+        :param conn: SQLite DB connection object
+        :param par_obj_id: Entry in tsk_objects
+        :return: Results of SQLite query as a list of rows.
+        """
+        query = """SELECT * FROM tsk_files
+                    JOIN tsk_fs_info ON tsk_files.fs_obj_id = tsk_fs_info.obj_id
+                    JOIN tsk_objects ON tsk_files.obj_id = tsk_objects.obj_id 
+                    WHERE tsk_fs_info.obj_id = ? AND tsk_objects.par_obj_id = ? AND tsk_files.type != ?;"""
+
+        cur = self.conn.cursor()
+        cur.execute(query, (filesystem_obj_id,str(int(filesystem_obj_id)+1),"7"))
         return cur.fetchall()
 
 
@@ -82,4 +100,6 @@ class TSKDatabase(object):
         cur.execute(query)
         return cur.fetchone().keys()
 
+    def close(self):
+        self.conn.close
 
